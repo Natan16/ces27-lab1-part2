@@ -31,6 +31,10 @@ func (master *Master) schedule(task *Task, proc string, filePathChan chan string
 		wg.Add(1)
 		go master.runOperation(worker, operation, &wg)
 	}
+	//delegar a operação que não foi executada a um outro worker
+	//for elem = range operation {
+
+	//}
 
 	wg.Wait()
 
@@ -58,6 +62,13 @@ func (master *Master) runOperation(remoteWorker *RemoteWorker, operation *Operat
 		log.Printf("Operation %v '%v' Failed. Error: %v\n", operation.proc, operation.id, err)
 		wg.Done()
 		master.failedWorkerChan <- remoteWorker
+		//basta colocar um novo worker pra concluir a operation
+		var worker *RemoteWorker
+		worker = <-master.idleWorkerChan
+		go master.runOperation(worker, operation, &wg) 
+		//master.opChan <- operation
+		//criar um outro wg ou será que tem que criar um outro mutex para pausar todas as runOperations enquanto tiver operations em opChan 
+		//( ou será que pode ficar fora de ordem?)
 	} else {
 		wg.Done()
 		master.idleWorkerChan <- remoteWorker

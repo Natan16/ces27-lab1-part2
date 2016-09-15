@@ -28,7 +28,7 @@ type Master struct {
 
 	idleWorkerChan   chan *RemoteWorker
 	failedWorkerChan chan *RemoteWorker
-
+	//opChan chan Operation
 	///////////////////////////////
 	// ADD EXTRA PROPERTIES HERE //
 	///////////////////////////////
@@ -81,7 +81,7 @@ func (master *Master) handleFailingWorkers() {
 		for worker := range master.failedWorkerChan {
         	master.workersMutex.Lock()
         	//remove worker from master.Workers
-        	delete(master.Workers , worker )
+        	delete(master.workers , worker.id )
         	//maybe remove worder from failedWorderChan
 			master.workersMutex.Unlock()
     	}
